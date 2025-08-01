@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Channel Messaging Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- QR Code library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .active-link {
+            background-color: theme('colors.indigo.700');
+            border-left: 4px solid theme('colors.indigo.400');
+            color: white;
+        }
+        .active-link .fa-solid {
+            color: white;
+        }
+        .active-link:hover {
+            background-color: theme('colors.indigo.700');
+        }
+        .success-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: theme('borderRadius.full');
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: theme('colors.green.100');
+            color: theme('colors.green.800');
+        }
+        .failure-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: theme('borderRadius.full');
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: theme('colors.red.100');
+            color: theme('colors.red.800');
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-gray-800 text-white w-64 p-6 space-y-6 flex-shrink-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out fixed inset-y-0 left-0 z-50 md:relative md:w-64">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold">Dashboard</h1>
+            <button id="sidebar-toggle" class="text-gray-400 focus:outline-none md:hidden">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        <nav>
+            <a href="#" id="menu-dashboard" data-title="Dashboard" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-150 ease-in-out">
+                <i class="fa-solid fa-house"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="#" id="menu-customers" data-title="Customer Data" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-150 ease-in-out mt-2">
+                <i class="fa-solid fa-users"></i>
+                <span class="font-medium">Customer Data</span>
+            </a>
+            <div class="mt-4 border-t border-gray-700 pt-4">
+                <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold px-3">Composer</p>
+                <a href="#" id="menu-whatsapp" data-title="WhatsApp" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-150 ease-in-out mt-2">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span class="font-medium">WhatsApp</span>
+                </a>
+                <a href="#" id="menu-email" data-title="Email" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-150 ease-in-out mt-2">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span class="font-medium">Email</span>
+                </a>
+                <a href="#" id="menu-sms" data-title="SMS" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-150 ease-in-out mt-2">
+                    <i class="fa-solid fa-sms"></i>
+                    <span class="font-medium">SMS</span>
+                </a>
+            </div>
+            <a href="#" id="menu-preview" data-title="Message Preview" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-150 ease-in-out mt-4">
+                <i class="fa-solid fa-eye"></i>
+                <span class="font-medium">Message Preview</span>
+            </a>
+            <a href="#" id="menu-settings" data-title="Settings" class="flex items-center space-x-3 p-3 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-150 ease-in-out mt-4">
+                <i class="fa-solid fa-gear"></i>
+                <span class="font-medium">Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebar-overlay" class="absolute inset-0 bg-gray-900 bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white shadow p-6 flex justify-between items-center z-30">
+            <h2 id="page-title" class="text-2xl font-semibold text-gray-800">Dashboard</h2>
+            <button id="sidebar-toggle-main" class="text-gray-600 focus:outline-none md:hidden">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </header>
+        
+        <div class="flex-1 overflow-x-hidden overflow-y-auto p-6">
+            <!-- Alert Message Area -->
+            <div id="alert-message" class="hidden flex items-center p-4 mb-4 text-sm rounded-lg border" role="alert">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                <span id="alert-text"></span>
+            </div>
+
+            <!-- Dashboard Section -->
+            <section id="section-dashboard" class="dashboard-section">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Stat Cards -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <i class="fa-solid fa-list-check text-4xl text-indigo-500"></i>
+                        <h3 class="mt-4 text-xl font-semibold text-gray-800">Total Campaigns</h3>
+                        <p class="mt-2 text-gray-600">34</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <i class="fa-solid fa-paper-plane text-4xl text-green-500"></i>
+                        <h3 class="mt-4 text-xl font-semibold text-gray-800">Messages Sent</h3>
+                        <p class="mt-2 text-gray-600">8,765</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <i class="fa-solid fa-clock text-4xl text-yellow-500"></i>
+                        <h3 class="mt-4 text-xl font-semibold text-gray-800">Scheduled</h3>
+                        <p class="mt-2 text-gray-600">12</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Message Log</h3>
+                    <div id="message-log-container">
+                        <p class="text-gray-500">Messages sent will appear here.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Data Section -->
+            <section id="section-customers" class="dashboard-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Upload Customer CSV</h3>
+                    <input type="file" id="csv-upload" accept=".csv" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    <div class="mt-6 overflow-x-auto">
+                        <div id="customer-table-container" class="min-w-full">
+                            <p class="text-gray-500 text-center py-8">Upload a CSV to see customer data here.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Composer Section -->
+            <section id="section-composer" class="dashboard-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Create Message</h3>
+                    <!-- UI/UX improvement: Two-column layout for composer inputs -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Message Content & Image Column -->
+                        <div>
+                            <div class="mb-4">
+                                <label for="manual-message" class="block text-sm font-medium text-gray-700">Message Content</label>
+                                <textarea id="manual-message" rows="6" placeholder="Write your message here... Use placeholders like [name], [email], etc." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label for="image-upload" class="block text-sm font-medium text-gray-700">Upload Image (Optional)</label>
+                                <input type="file" id="image-upload" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                            </div>
+                        </div>
+                        <!-- Scheduling & Options Column -->
+                        <div>
+                            <div id="whatsapp-type-options" class="mb-4">
+                              <label class="block text-sm font-medium text-gray-700">WhatsApp Send Method</label>
+                              <div class="mt-1 flex items-center space-x-4">
+                                <div class="flex items-center">
+                                  <input type="radio" id="whatsapp-api" name="whatsapp-type" value="api" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" checked>
+                                  <label for="whatsapp-api" class="ml-2 block text-sm font-medium text-gray-700">WhatsApp API</label>
+                                </div>
+                                <div class="flex items-center">
+                                  <input type="radio" id="whatsapp-qr" name="whatsapp-type" value="qr_code" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                                  <label for="whatsapp-qr" class="ml-2 block text-sm font-medium text-gray-700">QR Code</label>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="schedule-date" class="block text-sm font-medium text-gray-700">Schedule Date</label>
+                                <input type="date" id="schedule-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            </div>
+                            <div class="mb-6">
+                                <label for="schedule-time" class="block text-sm font-medium text-gray-700">Schedule Time</label>
+                                <input type="time" id="schedule-time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4 mt-4">
+                        <button id="generate-button" class="flex-1 py-3 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200">Generate Messages</button>
+                        <button id="schedule-button" class="flex-1 py-3 px-4 bg-green-600 text-white font-semibold rounded-md shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">Schedule Messages</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Message Preview Section -->
+            <section id="section-preview" class="dashboard-section hidden">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Message Preview</h3>
+                <div id="message-preview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p class="text-gray-500 text-center py-8">Generate messages to see a preview here.</p>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="section-settings" class="dashboard-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">API Settings</h3>
+                    <div class="space-y-6">
+                        <!-- WhatsApp Settings -->
+                        <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                            <h4 class="text-lg font-medium text-gray-800 mb-2">WhatsApp API</h4>
+                            <p class="text-sm text-gray-500 mb-4">Enter your WhatsApp Business API credentials to send messages directly.</p>
+                            
+                            <div class="mb-4">
+                                <label for="whatsapp-api-token" class="block text-sm font-medium text-gray-700 mb-1">API Token</label>
+                                <input type="text" id="whatsapp-api-token" placeholder="Enter API token" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                            </div>
+                            
+                            <div>
+                                <label for="whatsapp-phone-id" class="block text-sm font-medium text-gray-700 mb-1">Phone Number ID</label>
+                                <input type="text" id="whatsapp-phone-id" placeholder="Enter Phone Number ID" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Email Settings -->
+                        <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                            <h4 class="text-lg font-medium text-gray-800 mb-2">Email API</h4>
+                            <p class="text-sm text-gray-500 mb-4">Enter your email service credentials (e.g., SendGrid, Mailgun) to send emails.</p>
+                            
+                            <div class="mb-4">
+                                <label for="email-api-key" class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                                <input type="text" id="email-api-key" placeholder="Enter API key" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                            </div>
+                            
+                            <div>
+                                <label for="email-sender" class="block text-sm font-medium text-gray-700 mb-1">Sender Email</label>
+                                <input type="email" id="email-sender" placeholder="e.g., noreply@yourcompany.com" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal for success messages -->
+    <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <h4 class="text-2xl font-bold text-green-600 mb-4">Success!</h4>
+            <p id="modal-message" class="text-gray-700 mb-6"></p>
+            <button id="close-modal" class="py-2 px-6 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Close</button>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+            <h4 class="text-2xl font-bold text-gray-800 mb-4">Scan QR Code to Send</h4>
+            <p class="text-gray-600 mb-4">Your message is ready to be sent. Scan the QR code below with your phone to open WhatsApp and send the message.</p>
+            <!-- New div for QR code library -->
+            <div id="qr-code-container" class="mx-auto my-4 w-64 h-64"></div>
+            <button id="close-qr-modal" class="mt-6 py-2 px-6 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

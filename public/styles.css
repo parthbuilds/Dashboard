@@ -1,0 +1,117 @@
+/*
+ * This file contains custom styles for the message dashboard.
+ * It's designed to complement the Tailwind CSS classes used in the HTML.
+ */
+
+body {
+    background-color: #f3f4f6; /* bg-gray-100 */
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    background-color: #ffffff; /* bg-white */
+    border-radius: 1rem; /* rounded-xl */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-2xl */
+}
+
+.form-radio {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 50%;
+    border-width: 1px;
+    border-color: #d1d5db; /* border-gray-300 */
+    color: #4f46e5; /* text-indigo-600 */
+    height: 1rem;
+    width: 1rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-radio:checked {
+    border-color: transparent;
+    background-color: currentColor;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M8 1.5A6.5 6.5 0 1014.5 8 6.507 6.507 0 008 1.5z'/%3e%3c/svg%3e");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Style for the file input to make it look nicer */
+input[type="file"]::file-selector-button {
+    cursor: pointer;
+}
+
+/* Message Log table styling */
+#message-log-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#message-log-container th, #message-log-container td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+}
+
+#message-log-container th {
+    background-color: #f9fafb; /* bg-gray-50 */
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: #6b7280; /* text-gray-500 */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#message-log-container tbody tr:hover {
+    background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+.success-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #15803d; /* text-green-700 */
+    background-color: #dcfce7; /* bg-green-100 */
+}
+
+.failure-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #be123c; /* text-red-700 */
+    background-color: #fecaca; /* bg-red-200 */
+}
+
+/* --- New Dashboard Styles --- */
+/* Sidebar styling */
+.sidebar {
+    height: 100vh;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.sidebar.open {
+    transform: translate(0);
+}
+
+.sidebar-overlay.open {
+    display: block;
+}
+
+/* Active link style */
+.active-link {
+    background-color: #4b5563; /* bg-gray-700 */
+    color: #ffffff;
+    font-weight: bold;
+}
