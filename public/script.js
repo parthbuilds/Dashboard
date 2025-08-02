@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalButton = document.getElementById('close-modal');
     const qrModal = document.getElementById('qr-modal');
     const closeQrModalButton = document.getElementById('close-qr-modal');
-    const qrCodeContainer = document.getElementById('qr-code-container'); // Updated element
+    const qrCodeContainer = document.getElementById('qr-code-container');
 
     const menuLinks = document.querySelectorAll('aside nav a');
     const dashboardSections = document.querySelectorAll('.dashboard-section');
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hideModal = () => {
         modal.classList.add('hidden');
     };
-
+    
     // Function to show the QR modal
     const showQrModal = () => {
         qrModal.classList.remove('hidden');
@@ -127,11 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Navigation menu link click handlers
-    // FIX: A more robust way to handle clicks on the menu links, ensuring the correct parent <a> is targeted.
     menuLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-
+            
             const targetElement = e.currentTarget;
             if (!targetElement) return;
 
@@ -164,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showSection('section-settings', title);
                     break;
             }
-
+            
             setActiveLink(targetElement);
             // Hide sidebar on mobile after clicking a link
             if (window.innerWidth < 768) {
@@ -355,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Event listener for "Schedule Messages" button
-    scheduleButton.addEventListener('click', async () => {
+    scheduleButton.addEventListener('click', () => {
         if (generatedMessages.length === 0) {
             showAlert('Please generate messages first.');
             return;
@@ -385,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             const dataToEncode = `https://wa.me/?text=${encodeURIComponent(messageContent)}`;
-
+            
             qrCodeContainer.innerHTML = ''; // Clear previous QR code
             new QRCode(qrCodeContainer, {
                 text: dataToEncode,
@@ -410,53 +409,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // NEW: Make an API call to the Node.js server
-        const payload = {
-            messages: generatedMessages,
-            type: messageType,
-            scheduledDateTime: scheduledDateTime,
-            whatsappApi: {
-                token: whatsappApiTokenInput.value,
-                phoneNumberId: whatsappPhoneNumberIdInput.value
-            },
-            emailApi: {
-                apiKey: emailApiKeyInput.value,
-                sender: emailSenderInput.value
-            }
-        };
+        // Simulate a successful API response
+        showModal('Messages have been successfully scheduled.');
+        generatedMessages.forEach(msg => {
+             updateMessageLog({
+                 recipient: msg.customer.name || msg.customer.email,
+                 type: messageType,
+                 status: 'Success',
+                 timestamp: new Date().toISOString()
+             });
+        });
+            
+        showSection('section-dashboard', 'Dashboard');
+        setActiveLink(document.getElementById('menu-dashboard'));
 
-        try {
-            const response = await fetch('/schedule-message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            const result = await response.json();
-
-            // Use the server's response to update the UI
-            if (result.success) {
-                showModal(result.message);
-                // The server provides a log, but we'll still update our local log for demo purposes
-                result.log.forEach(log => updateMessageLog(log));
-            } else {
-                showAlert(result.message);
-                // Log the failures returned by the server
-                result.log.forEach(log => {
-                    if (log.status === 'Failed') {
-                        updateMessageLog(log);
-                    }
-                });
-            }
-
-            showSection('section-dashboard', 'Dashboard');
-            setActiveLink(document.getElementById('menu-dashboard'));
-
-        } catch (error) {
-            console.error('Error scheduling messages:', error);
-            showAlert('Failed to connect to the server. Please check the server status.');
-        }
     });
 });
